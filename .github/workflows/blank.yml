@@ -43,15 +43,14 @@ jobs:
     steps:
 
     - name: Update application
+      env:
+        tag: ${{ needs.build.outputs.image_tag }}
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
-        env:         
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          IMAGE_TAG: ${{ env.TAG }}
         script: |
           sudo su 
           sudo apt install git -y
@@ -60,8 +59,7 @@ jobs:
           rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
-          sed "s|{{image_name}}|$IMAGE_NAME|g" ./kuber/deployment.yaml
-          sed "s|{{image_tag}}|$IMAGE_TAG|g" ./kuber/deployment.yaml
+          sed "s|{{image_tag}}|${{ tag }}|g" ./kuber/deployment.yaml
           kubectl apply -f ./kuber/deployment.yaml
           kubectl apply -f kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
