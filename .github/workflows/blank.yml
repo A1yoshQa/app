@@ -52,10 +52,10 @@ jobs:
         script: |
           sudo su 
           sudo apt install git -y
+          rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
           ls -la
-          pwd
-          kubectl apply -f ./app/kuber/deployment.yml
-          kubectl apply -f ./app/kuber/service.yml
+          kubectl apply -f kuber/deployment.yml
+          kubectl apply -f kuber/service.yml
           kubectl get po,svc | grep my-kuber-app
