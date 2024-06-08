@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: my-kuber-app
-          image: $(IMAGE)
+          image: {{image_name}}:{{image_tag}}
           ports:
             - name: http
               containerPort: 80

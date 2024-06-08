@@ -55,10 +55,10 @@ jobs:
           rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
-          ls -la
-          IMAGE_NAME="${{ env.IMAGE_NAME }}"
-          TAG="${{ env.TAG }}"
-          sed "s/\$(IMAGE)/$IMAGE_NAME:$TAG/" ./kuber/deployment.yaml
+          export IMAGE_NAME=${{ env.IMAGE_NAME }}
+          export IMAGE_TAG=${{ env.TAG }}
+          sed -i 's/{{image_name}}/${IMAGE_NAME}/g' ./kuber/deployment.yaml
+          sed -i 's/{{image_tag}}/${IMAGE_TAG}/g' ./kuber/deployment.yaml
           kubectl apply -f ./kuber/deployment.yaml
           kubectl apply -f kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
