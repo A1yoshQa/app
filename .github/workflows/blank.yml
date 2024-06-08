@@ -1,36 +1,66 @@
-# This is a basic workflow to help you get started with Actions
+name: CI-build_and_deploy-site
 
-name: CI
-
-# Controls when the workflow will run
+env:
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/my-kuber-app
+  TAG: ${{ github.run_number }}
+  FILE_TAG: ./environments/value_tag
+  VARS_APP_REPO: ${{ vars.APP_REPO }}
+  REPO_DIR: web-app
+  
 on:
   push:
     branches:
     - main
     tags:
     - '*'
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+    
 jobs:
-  # This workflow contains a single job called "build"
+
   build:
-    # The type of runner that the job will run on
+    outputs:
+      image_tag: ${{ env.TAG }}
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    
+    - name: Get files
+      uses: actions/checkout@v3
+      
+    - name: Set env TAG
+      id: step_tag
+      run: echo "TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+      if: startsWith(github.ref, 'refs/tags/v')
+      
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+    
+    - name: Push the Docker image
+      run: |
+        docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+        docker push ${{ env.IMAGE_NAME }}:${{ env.TAG }}
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+  deploy: 
+    
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Update application
+      env:
+        tag: ${{ needs.build.outputs.image_tag }}
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          rm -rf ./${{ env.REPO_DIR}}
+          git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
+          cd ./${{ env.REPO_DIR}}
+          kubectl apply -f ./kuber/deployment.yml
+          kubectl apply -f ./kuber/service.yml
+          kubectl get po,svc | grep my-k8s-app

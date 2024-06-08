@@ -1,0 +1,22 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-kuber-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-kuber-app
+  template:
+    metadata:
+      labels:
+        app: my-kuber-app
+    spec:
+      containers:
+        - name: my-kuber-app
+          image: a1yoshqa/my-kuber-app
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
