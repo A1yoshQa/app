@@ -24,7 +24,12 @@ jobs:
     steps:
     
     - name: Get files
-      uses: actions/checkout@v3
+      uses: actions/checkout@v30
+
+    - name: Set env TAG
+      id: step_tag
+      run: echo "TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+      if: startsWith(github.ref, 'refs/tags/v')
       
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TAG }}
@@ -54,6 +59,7 @@ jobs:
         script: |
           sudo su 
           sudo apt install git -y
+          ls -la
           kubectl delete  -f .app/kuber/deployment.yaml
           kubectl delete -f .app/kuber/service.yaml
           rm -rf ./${{ env.REPO_DIR}}
