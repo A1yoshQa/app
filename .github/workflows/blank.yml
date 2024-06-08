@@ -56,6 +56,6 @@ jobs:
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
           ls -la
-          kubectl apply -f kuber/deployment.yml
-          kubectl apply -f kuber/service.yml
+          kubectl apply -f ./kuber/deployment.yaml
+          kubectl apply -f kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
