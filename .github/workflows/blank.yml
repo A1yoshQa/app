@@ -49,16 +49,19 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
+        env:         
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.TAG }}
         script: |
           sudo su 
           sudo apt install git -y
+          kubectl delete  -f .app/kuber/deployment.yaml
+          kubectl delete -f .app/kuber/service.yaml
           rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
-          export IMAGE_NAME=${{ env.IMAGE_NAME }}
-          export IMAGE_TAG=${{ env.TAG }}
-          sed -i 's/{{image_name}}/${IMAGE_NAME}/g' ./kuber/deployment.yaml
-          sed -i 's/{{image_tag}}/${IMAGE_TAG}/g' ./kuber/deployment.yaml
+          sed "s|{{image_name}}|$IMAGE_NAME|g" ./kuber/deployment.yaml
+          sed "s|{{image_tag}}|$IMAGE_TAG|g" ./kuber/deployment.yaml
           kubectl apply -f ./kuber/deployment.yaml
           kubectl apply -f kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
