@@ -56,6 +56,6 @@ jobs:
           cd ./${{ env.REPO_DIR}}
           ls -la
           pwd
-          kubectl apply -f ./kuber/deployment.yml
-          kubectl apply -f ./kuber/service.yml
+          kubectl apply -f ./app/kuber/deployment.yml
+          kubectl apply -f ./app/kuber/service.yml
           kubectl get po,svc | grep my-kuber-app
