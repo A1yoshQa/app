@@ -24,7 +24,7 @@ jobs:
     steps:
     
     - name: Get files
-      uses: actions/checkout@v30
+      uses: actions/checkout@v3
 
     - name: Set env TAG
       id: step_tag
