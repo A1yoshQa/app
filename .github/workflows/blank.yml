@@ -61,5 +61,5 @@ jobs:
           cd ./${{ env.REPO_DIR}}
           sed "s|{{image_tag}}|${{ tag }}|g" ./kuber/deployment.yaml
           kubectl apply -f ./kuber/deployment.yaml
-          kubectl apply -f kuber/service.yaml
+          kubectl apply -f ./kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
