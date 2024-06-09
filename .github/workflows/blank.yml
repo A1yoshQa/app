@@ -65,10 +65,9 @@ jobs:
           rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
-          echo "123!!!!"
           echo ${{ env.tag }}
-          export kal = ${{ env.tag }}
-          sed "s|{{image_tag}}|$kal|g" ./kuber/deployment.yaml
+          echo "123!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+          sed "s|{{image_tag}}|${{ env.tag }}|g" ./kuber/deployment.yaml
           kubectl apply -f ./kuber/deployment.yaml
           kubectl apply -f ./kuber/service.yaml
           kubectl get po,svc | grep my-kuber-app
