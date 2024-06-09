@@ -59,19 +59,12 @@ jobs:
         script: |
           sudo su 
           sudo apt install git -y
-          ls -la
           kubectl delete  -f .app/kuber/deployment.yaml
           kubectl delete -f .app/kuber/service.yaml
           rm -rf ./${{ env.REPO_DIR}}
           git clone ${{ env.VARS_APP_REPO }} ./${{ env.REPO_DIR}}
           cd ./${{ env.REPO_DIR}}
-          echo ${{ env.tag }}
-          echo "!!!!!!!!!!!!!!!!!!!!!!"
-          cat ./kuber/deployment.yaml
-          echo "22222222222222"
           sed -i "s|{{image_tag}}|${{ env.tag }}|g" ./kuber/deployment.yaml
-          cat ./kuber/deployment.yaml
-           echo "33333333333333333333"
-          kubectl apply -f ./kuber/deployment.yaml
-          kubectl apply -f ./kuber/service.yaml
-          kubectl get po,svc | grep my-kuber-app
+          sudo kubectl apply -f ./kuber/deployment.yaml
+          sudo kubectl apply -f ./kuber/service.yaml
+          sudo kubectl get po,svc | grep my-kuber-app
